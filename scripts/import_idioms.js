@@ -6,12 +6,12 @@ const pool = require('../db/index'); // DB 연결 설정
 
 async function importIdioms() {
   try {
-    const filePath = path.join(__dirname, '../idioms_final_for_project.json'); // 또는 idioms_full_600.json 경로로 수정
+    const filePath = path.join(__dirname, '../idioms_final_with_difficulty.json'); // 또는 idioms_full_600.json 경로로 수정
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     const insertQuery = `
-      INSERT INTO idioms (id, word, meaning, reading, synonyms, antonyms)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO idioms (id, word, meaning, reading, synonyms, antonyms, difficulty)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
     for (const idiom of data) {
@@ -21,7 +21,8 @@ async function importIdioms() {
         meaning,
         reading = null,
         synonyms = null,
-        antonyms = null
+        antonyms = null,
+        difficulty = null
       } = idiom;
 
       await pool.execute(insertQuery, [
@@ -30,7 +31,8 @@ async function importIdioms() {
         meaning,
         reading,
         synonyms,
-        antonyms
+        antonyms,
+        difficulty
       ]);
     }
 
