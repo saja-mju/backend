@@ -155,6 +155,49 @@ exports.getWrongAnswers = async (req, res) => {
   }
 };
 
+// 기본 퀴즈 출제 API
+exports.getBasicQuiz = async (req, res) => {
+  try {
+    // 1) 랜덤으로 한 문제 뽑기
+    const [[idiom]] = await db.query(`
+      SELECT id, reading AS word, meaning
+      FROM idioms
+      ORDER BY RAND()
+      LIMIT 1
+    `);
+
+    // 2) 정답(읽기) 제외한 3개의 오답 보기 뽑기
+    const [wrongRows] = await db.query(`
+      SELECT reading AS word
+      FROM idioms
+      WHERE id != ?
+        AND reading IS NOT NULL
+        AND TRIM(reading) != ''
+      ORDER BY RAND()
+      LIMIT 3
+    `, [idiom.id]);
+
+    // 3) 보기 섞기
+    const options = [
+      { word: idiom.word, isCorrect: true },
+      ...wrongRows.map(r => ({ word: r.word, isCorrect: false }))
+    ].sort(() => Math.random() - 0.5);
+
+    // 4) 응답 포맷
+    res.json({
+      question: {
+        id: idiom.id,
+        meaning: idiom.meaning,
+        total: 599  // 필요하다면 전체 개수
+      },
+      options
+    });
+  } catch (err) {
+    console.error('getBasicQuiz error:', err);
+    res.status(500).json({ error: 'DB Error' });
+  }
+};
+
 // 단어퀴즈(기본) 정답 제출 API (+10점)
 exports.submitBasicQuiz = async (req, res) => {
   const { username, idiomId, isCorrect } = req.body;

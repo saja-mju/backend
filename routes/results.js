@@ -8,6 +8,7 @@ const { saveScore,
     getRanking, 
     getRankingMode,
     getStats, 
+    getBasicQuiz,
     submitBasicQuiz,
     getSynonymQuiz, 
     submitSynonymQuiz, 
@@ -26,6 +27,8 @@ router.get('/ranking', getRanking);
 router.get('/ranking-mode', getRankingMode);
 router.get('/stats/:username', getStats);
 
+// 기본 퀴즈 출제
+router.get('/basic-quiz/:username', getBasicQuiz);
 // 기본 문제 정답 제출 
 router.post('/submit-basic', submitBasicQuiz);
 
