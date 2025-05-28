@@ -131,11 +131,11 @@ node app.js
 | 오늘의 문제 제출 | POST   | /daily/submit                | `{ username, idiomId }` 제출     |
 | 풀이 기록 조회   | GET    | /daily/history/:username     | 풀이 날짜 배열 반환              |
 
-### Viewed & Progress API (안 쓰거나 수정)
-| 기능           | 메서드 | 경로                                   | 설명                              |
-|----------------|--------|----------------------------------------|-----------------------------------|
-| 본 문제 목록 조회| GET    | /viewed/:username                     | 사용자가 본 문제 ID 배열 반환     |
-| 진행률 조회      | GET    | /progress/:username?mode=basic...    | `{ solved, total, progressText }` 반환 |
+### Viewed API (안 쓸 수도 있음)
+| 기능             | 메서드 | 경로                   | 설명                        |
+|------------------|--------|------------------------|-----------------------------|
+| 뷰 기록 저장     | POST   | /viewed/view           | `{ username, idiom_id }`    |
+| 본 문제 목록 조회| GET    | /viewed/:username      | 사용자가 본 카드 ID 배열 반환 |
 
 ---
 
