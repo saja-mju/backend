@@ -95,7 +95,7 @@ node app.js
 | 랜덤 10개 조회 | GET    | /idioms      | 사자성어 10개 반환        |
 | 단일 조회      | GET    | /idioms/:id  | 특정 ID 사자성어 반환     |
 
-### Favorites API
+### Favorites API (사용 안 함)
 | 기능          | 메서드 | 경로                 | 설명                                  |
 |---------------|--------|----------------------|---------------------------------------|
 | 즐겨찾기 추가 | POST   | /favorites           | `{ username, idiomId }`              |
@@ -131,7 +131,7 @@ node app.js
 | 오늘의 문제 제출 | POST   | /daily/submit                | `{ username, idiomId }` 제출     |
 | 풀이 기록 조회   | GET    | /daily/history/:username     | 풀이 날짜 배열 반환              |
 
-### Viewed & Progress API
+### Viewed & Progress API (안 쓰거나 수정)
 | 기능           | 메서드 | 경로                                   | 설명                              |
 |----------------|--------|----------------------------------------|-----------------------------------|
 | 본 문제 목록 조회| GET    | /viewed/:username                     | 사용자가 본 문제 ID 배열 반환     |
