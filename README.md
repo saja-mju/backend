@@ -113,6 +113,7 @@ node app.js
 | 전체 랭킹 조회        | GET    | `/results/ranking?mode=basic|synonym|hanja` | 상위 10명 랭킹 반환                                        |
 | 모드별 랭킹 조회      | GET    | `/results/ranking-mode?mode=...`       | 모드별 상위 10명 랭킹 반환                                |
 | 통계 조회             | GET    | `/results/stats/:username`             | 학습 횟수, 정답수, 오답수, 정확도, 진행률 반환            |
+| 기본 퀴즈 출제       | GET    | `/results/basic-quiz/:username`         | 랜덤 사자성어 문제 한 건 반환          |
 | 기본 퀴즈 정답 제출   | POST   | `/results/submit-basic`                | `{ username, idiomId, isCorrect }`                        |
 | 유의어 퀴즈 출제      | GET    | `/results/synonym-quiz/:username`      | 유의어 퀴즈 문제 데이터 반환                               |
 | 유의어 퀴즈 제출      | POST   | `/results/synonym-quiz/submit`         | `{ username, idiomId, selectedWords[] }`                  |
