@@ -1,3 +1,4 @@
+// idiomController.js
 const db = require('../db');
 
 exports.getIdioms = async (req, res) => {
