@@ -124,7 +124,7 @@ node app.js
 ---
 
 ## DB Schema 적용
-- 스키마 파일: `db/schema.sql` (10개 테이블 정의 포함 -> 실사용은 8게)
+- 스키마 파일: `db/schema.sql` (10개 테이블 정의 포함 -> 실사용은 8개)
 
 ```bash
 mysql -u root -p idiom_game < db/schema.sql
