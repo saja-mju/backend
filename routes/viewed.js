@@ -17,4 +17,20 @@ router.post('/view', async (req, res) => {
   }
 });
 
+// 저장된 기록 조회
+router.get('/:username', async (req, res) => {
+  const { username } = req.params;
+  try {
+    const [rows] = await db.query(
+      'SELECT idiom_id FROM viewed_cards WHERE username = ?',
+      [username]
+    );
+    // idiom_id 배열만 반환
+    res.json(rows.map(r => r.idiom_id));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB Error');
+  }
+});
+
 module.exports = router;
