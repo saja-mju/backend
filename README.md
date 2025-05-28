@@ -140,7 +140,7 @@ node app.js
 ---
 
 ## DB Schema 적용
-- 스키마 파일: `db/schema.sql` (8개 테이블 정의 포함)
+- 스키마 파일: `db/schema.sql` (10개 테이블 정의 포함 but 8개만 사용할 예정)
 
 ```bash
 mysql -u root -p idiom_game < db/schema.sql
@@ -157,7 +157,7 @@ node scripts/seed-idioms.js
 
 ---
 
-## 세션 & 쿠키
+## 세션 & 쿠키 
 - `express-session` 기반 세션 사용
 - 클라이언트: `connect.sid` 쿠키로 세션 ID 전달
 - **예시**:
