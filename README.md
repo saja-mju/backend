@@ -95,18 +95,33 @@ node app.js
 | 랜덤 10개 조회 | GET    | /idioms      | 사자성어 10개 반환        |
 | 단일 조회      | GET    | /idioms/:id  | 특정 ID 사자성어 반환     |
 
+### Favorites API
+| 기능          | 메서드 | 경로                 | 설명                                  |
+|---------------|--------|----------------------|---------------------------------------|
+| 즐겨찾기 추가 | POST   | /favorites           | `{ username, idiomId }`              |
+| 즐겨찾기 조회 | GET    | /favorites/:username | 사용자의 즐겨찾기 목록 반환          |
+
 ### Quiz & Results API
-| 기능                 | 메서드 | 경로                              | 설명                                                      |
-|----------------------|--------|-----------------------------------|-----------------------------------------------------------|
-| 기본 퀴즈 제출       | POST   | /quiz/basic/submit                | `{ username, idiomId, isCorrect }`                       |
-| 유의어 퀴즈 출제     | GET    | /quiz/synonym/:username           | 문제 데이터 반환                                         |
-| 유의어 퀴즈 제출     | POST   | /quiz/synonym/submit              | `{ username, idiomId, selectedWords[] }`                |
-| 한자 조합 퀴즈 출제  | GET    | /quiz/hanja/:username             | 문제 데이터 반환                                         |
-| 한자 조합 퀴즈 제출  | POST   | /quiz/hanja/submit                | `{ username, idiomId, selected[] }`                     |
-| 점수 랭킹 조회       | GET    | /results/ranking?mode=basic...    | 상위 10명 랭킹 반환                                      |
-| 모드별 랭킹 조회     | GET    | /results/ranking-mode?mode=...    | 모드별 상위 10명 랭킹 반환                                |
-| 통계 조회            | GET    | /results/stats/:username          | 학습 횟수, 정답수, 오답수, 정확도, 진행률 등 반환        |
-| 오답 노트 조회       | GET    | /results/wrong/:username?mode=... | 오답 문제 목록 반환                                      |
+> Base URL: `http://localhost:3000/results`
+> 모든 경로 앞에 `/results` 프리픽스가 붙습니다.
+
+| 기능                  | 메서드 | 경로                                   | 설명                                                      |
+|-----------------------|--------|----------------------------------------|-----------------------------------------------------------|
+| 점수 저장             | POST   | `/results/score`                       | `{ username, score }`                                      |
+| 오답 저장             | POST   | `/results/wrong`                       | `{ username, wrongIds, mode? }`                            |
+| 오답 조회             | GET    | `/results/wrong/:username?mode=...`    | 사용자의 오답 문제 목록 반환                              |
+| 전체 랭킹 조회        | GET    | `/results/ranking?mode=basic|synonym|hanja` | 상위 10명 랭킹 반환                                        |
+| 모드별 랭킹 조회      | GET    | `/results/ranking-mode?mode=...`       | 모드별 상위 10명 랭킹 반환                                |
+| 통계 조회             | GET    | `/results/stats/:username`             | 학습 횟수, 정답수, 오답수, 정확도, 진행률 반환            |
+| 기본 퀴즈 정답 제출   | POST   | `/results/submit-basic`                | `{ username, idiomId, isCorrect }`                        |
+| 유의어 퀴즈 출제      | GET    | `/results/synonym-quiz/:username`      | 유의어 퀴즈 문제 데이터 반환                               |
+| 유의어 퀴즈 제출      | POST   | `/results/synonym-quiz/submit`         | `{ username, idiomId, selectedWords[] }`                  |
+| 한자 조합 퀴즈 출제   | GET    | `/results/hanja-quiz/:username`        | 한자 조합 퀴즈 문제 데이터 반환                           |
+| 한자 조합 퀴즈 제출   | POST   | `/results/hanja-quiz`                  | `{ username, idiomId, selected[] }`                       |
+| 오늘의 문제 조회      | GET    | `/results/daily/:username`             | 당일 문제 반환                                            |
+| 오늘의 문제 제출      | POST   | `/results/daily/submit`                | `{ username, idiomId }` 제출                               |
+| 풀이 기록 조회        | GET    | `/results/daily-history/:username`     | 풀이 날짜 배열 반환                                        |
+| 진행률 조회           | GET    | `/results/progress/:username`          | `{ solved, total, progressText }` 반환                    |
 
 ### Daily Quiz API
 | 기능           | 메서드 | 경로                          | 설명                             |
@@ -124,7 +139,7 @@ node app.js
 ---
 
 ## DB Schema 적용
-- 스키마 파일: `db/schema.sql` (10개 테이블 정의 포함 -> 실사용은 8개)
+- 스키마 파일: `db/schema.sql` (8개 테이블 정의 포함)
 
 ```bash
 mysql -u root -p idiom_game < db/schema.sql
