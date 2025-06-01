@@ -43,7 +43,7 @@ exports.getRankingMode = async (req, res) => {
                  CASE mode
                    WHEN 'basic'   THEN 10
                    WHEN 'synonym' THEN 20
-                   WHEN 'hanja'   THEN 10
+                   WHEN 'hanja'   THEN 30
                    ELSE 0
                  END
                ) AS score
@@ -452,7 +452,7 @@ exports.submitHanjaQuiz = async (req, res) => {
 
     if (isCorrect) {
       await db.query(
-        'INSERT INTO scores (username, score) VALUES (?, 10)',
+        'INSERT INTO scores (username, score) VALUES (?, 30)',
         [username]
       );
     }
@@ -464,36 +464,130 @@ exports.submitHanjaQuiz = async (req, res) => {
   }
 };
 
-exports.submitDailyAnswer = async (req, res) => {
-  const { username, idiomId } = req.body;
+// 오늘의 문제 제출 
+// exports.submitDailyAnswer = async (req, res) => {
+//   const { username, idiomId } = req.body;
 
-  if (!username || !idiomId) {
-    return res.status(400).json({ error: 'username 또는 idiomId가 누락되었습니다.' });
+//   if (!username || !idiomId) {
+//     return res.status(400).json({ error: 'username 또는 idiomId가 누락되었습니다.' });
+//   }
+
+//   try {
+//     const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+
+//     const [[existing]] = await db.query(`
+//       SELECT * FROM daily_answers 
+//       WHERE username = ? AND date = ?
+//     `, [username, today]);
+
+//     if (existing) {
+//       return res.status(200).send('이미 오늘의 문제를 제출하셨습니다.');
+//     }
+
+//     await db.query(`
+//       INSERT INTO daily_answers (username, idiom_id, date)
+//       VALUES (?, ?, ?)
+//     `, [username, idiomId, today]);
+
+//     res.sendStatus(200);
+//   } catch (err) {
+//     console.error('daily submit error:', err);
+//     res.status(500).send('DB Error');
+//   }
+// };
+
+// controllers/resultsController.js
+// (변경) user_answer, is_correct 칼럼까지 함께 저장하도록 수정
+exports.submitDailyAnswer = async (req, res) => {
+  const { username, idiomId, userAnswer } = req.body;
+  if (!username || !idiomId || typeof userAnswer !== "string") {
+    return res
+      .status(400)
+      .json({ error: "username, idiomId, userAnswer 모두 필요합니다." });
   }
 
   try {
-    const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-    const [[existing]] = await db.query(`
-      SELECT * FROM daily_answers 
-      WHERE username = ? AND date = ?
-    `, [username, today]);
-
+    // 1) 오늘 이미 풀었는지 체크
+    const [[existing]] = await db.query(
+      `SELECT * FROM daily_answers WHERE username = ? AND date = ?`,
+      [username, today]
+    );
     if (existing) {
-      return res.status(200).send('이미 오늘의 문제를 제출하셨습니다.');
+      return res.status(200).send("이미 오늘의 문제를 제출하셨습니다.");
     }
 
-    await db.query(`
-      INSERT INTO daily_answers (username, idiom_id, date)
-      VALUES (?, ?, ?)
-    `, [username, idiomId, today]);
+    // 2) 실제 정답(reading)을 가져와서 맞춤 여부 비교
+    const [[row]] = await db.query(
+      `SELECT reading AS word FROM idioms WHERE id = ?`,
+      [idiomId]
+    );
+    if (!row) {
+      return res.status(400).json({ error: "유효하지 않은 idiomId입니다." });
+    }
+    const correctWord = row.word.trim();
+    const isCorrect = userAnswer.trim() === correctWord ? 1 : 0;
+
+    // 3) INSERT 시 user_answer, is_correct 칼럼도 함께 넣기
+    await db.query(
+      `INSERT INTO daily_answers
+         (username, idiom_id, user_answer, is_correct, date)
+       VALUES (?, ?, ?, ?, ?)`,
+      [username, idiomId, userAnswer, isCorrect, today]
+    );
 
     res.sendStatus(200);
   } catch (err) {
-    console.error('daily submit error:', err);
-    res.status(500).send('DB Error');
+    console.error("submitDailyAnswer error:", err);
+    res.status(500).send("DB Error");
   }
 };
+
+// controllers/resultsController.js
+// 오늘의 결과 불러오기 엔드포인트 추가 
+// GET /results/daily-result/:username
+exports.getDailyResult = async (req, res) => {
+  const { username } = req.params;
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+
+    // 오늘 푼 기록을 JOIN으로 가져오기 (문제의 meaning, 정답 word, 유저 답, 맞았는지)
+    const [[row]] = await db.query(
+      `
+      SELECT
+        d.idiom_id,
+        i.reading   AS correctWord,
+        i.meaning   AS meaning,
+        d.user_answer AS userAnswer,
+        d.is_correct  AS isCorrect
+      FROM daily_answers d
+      JOIN idioms i ON d.idiom_id = i.id
+      WHERE d.username = ? AND d.date = ?
+      LIMIT 1
+      `,
+      [username, today]
+    );
+
+    if (!row) {
+      // 오늘 풀었던 기록이 없으면 404
+      return res.status(404).json({ error: "오늘 풀었던 기록이 없습니다." });
+    }
+
+    // JSON으로 내려줄 데이터 구조
+    res.json({
+      idiomId:     row.idiom_id,
+      correctWord: row.correctWord,
+      meaning:     row.meaning,
+      userAnswer:  row.userAnswer,
+      isCorrect:   row.isCorrect === 1, // true/false로 변환
+    });
+  } catch (err) {
+    console.error("getDailyResult error:", err);
+    res.status(500).send("DB Error");
+  }
+};
+
 
 // 오늘의 문제 API - GET
 exports.getDailyIdiom = async (req, res) => {

@@ -103,3 +103,9 @@ CREATE TABLE favorites (
 -- 10. idioms_backup 테이블: 데이터 백업용
 DROP TABLE IF EXISTS idioms_backup;
 CREATE TABLE idioms_backup LIKE idioms;
+
+-- 11. daily_answers 테이블에 user_answer와 is_correct 컬럼 추가
+ALTER TABLE `daily_answers`
+  ADD COLUMN `user_answer` VARCHAR(255) NOT NULL AFTER `idiom_id`,
+  ADD COLUMN `is_correct` TINYINT(1) NOT NULL DEFAULT 0 AFTER `user_answer`;
+

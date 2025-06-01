@@ -16,6 +16,7 @@ const { saveScore,
     submitHanjaQuiz ,
     getDailyIdiom,
     submitDailyAnswer,
+    getDailyResult,
     getDailyHistory,
     getProgress
 } = require('../controllers/resultsController');
@@ -43,6 +44,9 @@ router.post('/hanja-quiz', submitHanjaQuiz);
 // 오늘의 문제
 router.get('/daily/:username', getDailyIdiom);
 router.post('/daily/submit', submitDailyAnswer);
+
+// 새로 추가하는 라우트
+router.get("/daily-result/:username",  getDailyResult);
 
 // 오늘의 문제 기록용 달력 시각화 
 router.get('/daily-history/:username', getDailyHistory);
